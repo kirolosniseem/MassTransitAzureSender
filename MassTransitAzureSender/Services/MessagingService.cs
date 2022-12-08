@@ -17,6 +17,7 @@ namespace MassTransitAzureSender.Services
             _sendEndpointProvider = sendEndpointProvider;
         }
 
+        //publish message, and multiple subscripers might listen and consume it (one to many)
         public async Task PublishMessageAsync(string msg)
         {
             try
@@ -33,6 +34,7 @@ namespace MassTransitAzureSender.Services
             }
         }
 
+        //send message to a certain queue, and a certain subscriper listens to that queue to read the message then delete it (one to one)
         public async Task SendMessageAsyn(string msg)
         {
             try
