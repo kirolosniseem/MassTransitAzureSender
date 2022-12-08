@@ -1,5 +1,6 @@
 using MassTransit;
 using MassTransitAzureSender;
+using MassTransitAzureSender.Services;
 using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +37,8 @@ builder.Services.AddOptions<MassTransitHostOptions>()
         options.StopTimeout = TimeSpan.FromSeconds(30);
     });
 #endregion
+
+builder.Services.AddTransient<IMessagingService, MessagingService>();
 
 var app = builder.Build();
 

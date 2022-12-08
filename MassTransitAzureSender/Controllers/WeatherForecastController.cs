@@ -1,5 +1,6 @@
 using MassTransit;
 using MassTransit.Transports;
+using MassTransitAzureSender.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Reflection;
@@ -11,18 +12,17 @@ namespace MassTransitAzureSender.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+
+        private static readonly string[] Summaries = new[] {"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"};
 
         private readonly ILogger<WeatherForecastController> _logger;
-        private readonly IPublishEndpoint _publishEndpoint;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IPublishEndpoint publishEndpoint)
+        public IMessagingService _messagingService { get; }
+
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IMessagingService messagingService)
         {
             _logger = logger;
-            _publishEndpoint = publishEndpoint;
+            _messagingService = messagingService;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -42,12 +42,8 @@ namespace MassTransitAzureSender.Controllers
         {
             try
             {
-                await _publishEndpoint.Publish<SendMessageEvent>(new()
-                {
-                    MessageBody = msg,
-                    MessageSender = "KN-AzureSender"
-                });
-
+                await _messagingService.PublishMessageAsync(msg);
+                await _messagingService.SendMessageAsyn(msg);
                 return "message sent";
             }
             catch (Exception ex)
